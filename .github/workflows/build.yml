@@ -3,26 +3,19 @@ name: Build and push latest image if needed
 on:
   pull_request:
     branches:
-      - main
+      - merge_tgt
   push:
     branches:
-      - main
+      - merge_tgt
 
 jobs:
   build:
     runs-on: [ubuntu-18.04]
     steps:
-      - uses: actions/checkout@v2
-      - name: Build antrea-operator Docker image
-        run: make docker-build
-      - name: Build antrea-operator-bundle Docker image
-        run: make bundle-build
-      - name: Push images to registry
-        if: ${{ github.repository == 'vmware/antrea-operator-for-kubernetes' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Test flags
         run: |
-          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          docker push antrea/antrea-operator:latest
-          docker push antrea/antrea-operator-bundle:latest
+          echo "${{ github.event_name }}"
+          echo "${{ github.event }}"
+          echo "${{ github.event.pull_request }}"
+          echo "${{ github.event.pull_request.merged }}"
+          echo "${{ github.event.pull_request.merged == true }}"
